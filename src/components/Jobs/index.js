@@ -27,6 +27,7 @@ class Jobs extends Component {
     searchInput: '',
     activeSalaryRangeId: '',
     employmentTypesChecked: [],
+    locationSelected: [],
   }
 
   componentDidMount() {
@@ -48,6 +49,21 @@ class Jobs extends Component {
     this.setState({employmentTypesChecked: updatedList}, this.getJobs)
   }
 
+  updateLocationTypesChecked = typeId => {
+    const {locationSelected} = this.state
+    let updatedLocations = locationSelected
+
+    if (locationSelected.includes(typeId)) {
+      updatedLocations = locationSelected.filter(
+        eachType => eachType !== typeId,
+      )
+    } else {
+      updatedLocations = [...updatedLocations, typeId]
+    }
+
+    this.setState({locationSelected: updatedLocations}, this.getJobs)
+  }
+
   updateSalaryRangeId = activeSalaryRangeId =>
     this.setState({activeSalaryRangeId}, this.getJobs)
 
@@ -58,11 +74,14 @@ class Jobs extends Component {
       activeSalaryRangeId,
       employmentTypesChecked,
       searchInput,
+      locationSelected,
     } = this.state
 
     const employTypes = employmentTypesChecked.join(',')
+    const locations = locationSelected.join(',')
+
     const jwtToken = Cookies.get('jwt_token')
-    const apiUrl = `https://apis.ccbp.in/jobs?employment_type=${employTypes}&minimum_package=${activeSalaryRangeId}&search=${searchInput}`
+    const apiUrl = `https://apis.ccbp.in/jobs?employment_type=${employTypes}&minimum_package=${activeSalaryRangeId}&location=${locations}&search=${searchInput}`
 
     const options = {
       headers: {
@@ -84,6 +103,7 @@ class Jobs extends Component {
         rating: eachJob.rating,
         title: eachJob.title,
       }))
+
       this.setState({
         jobsList: updatedData,
         jobsApiStatus: apiStatusConstants.success,
@@ -152,6 +172,7 @@ class Jobs extends Component {
       profileApiStatus,
       activeSalaryRangeId,
       employmentTypesChecked,
+      locationSelected,
     } = this.state
     return (
       <div className="side-bar">
@@ -167,6 +188,8 @@ class Jobs extends Component {
           activeSalaryRangeId={activeSalaryRangeId}
           updateEmploymentTypesChecked={this.updateEmploymentTypesChecked}
           employmentTypesChecked={employmentTypesChecked}
+          activeLocations={locationSelected}
+          updateLocationTypesChecked={this.updateLocationTypesChecked}
         />
       </div>
     )
@@ -230,7 +253,7 @@ class Jobs extends Component {
     </div>
   )
 
-  rERC5b4PoR51qWEvAWuJsX6yRVRBvRVta7 = () => {
+  renderJobsRoute = () => {
     const {jobsApiStatus} = this.state
 
     switch (jobsApiStatus) {
@@ -253,7 +276,7 @@ class Jobs extends Component {
           {this.renderSideBar()}
           <div className="jobs-container">
             {this.renderSearchBar('largeSearchBar')}
-            {this.rERC5b4PoR51qWEvAWuJsX6yRVRBvRVta7()}
+            {this.renderJobsRoute()}
           </div>
         </div>
       </div>
